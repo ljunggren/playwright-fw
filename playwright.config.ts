@@ -17,6 +17,10 @@ export default defineConfig({
     storageState: 'user.json', 
     baseURL: 'https://conduit.bondaracademy.com', // Update if needed
     trace: 'on-first-retry',
+    // Options: 'on' | 'off' | 'retain-on-failure' | 'on-first-retry'
+    video: 'retain-on-failure',
+    // Only for local debugging
+    //video: 'on',
   },
 
   projects: [
