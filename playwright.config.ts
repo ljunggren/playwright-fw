@@ -9,6 +9,8 @@ export default defineConfig({
   // FIX: Just use the string path. 
   // Playwright resolves this relative to the config file.
   globalSetup: './tests/global-setup.ts', 
+  reporter: [['list'], ['html']], 
+  outputDir: 'test-results',
 
   use: {
     // Tell Playwright to load the saved cookies/state for every test

@@ -6,11 +6,16 @@ on:
   pull_request:
     branches: [ main, master ]
 
+# 1. PERMISSIONS: Allow the Action to write to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
 
@@ -25,21 +30,36 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 
-    # CRITICAL STEP: Inject Secrets into the Environment
-    # This allows your Global Setup to access the username/password
     - name: Run Playwright tests
       env:
         TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
         TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-        # If your app runs on localhost in CI, you need to start it here.
-        # If testing against a live URL (staging/prod), this line isn't needed.
-        # BASE_URL: https://conduit.bondaracademy.com 
       run: npx playwright test
 
-    - name: Upload Test Report
-      uses: actions/upload-artifact@v4
+    # 2. UPLOAD: Package the report for Pages (Runs even if tests fail)
+    - name: Upload Pages Artifact
+      uses: actions/upload-pages-artifact@v3
       if: always()
       with:
-        name: playwright-report
         path: playwright-report/
         retention-days: 30
+
+  # 3. DEPLOY: A separate job that pushes the artifact to the website
+  deploy-report:
+    needs: test
+    # Run this even if the 'test' job failed (so we can see WHY it failed)
+    if: always()
+    
+    permissions:
+      pages: write
+      id-token: write
+      
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
