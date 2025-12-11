@@ -1,0 +1,17 @@
+{
+  "name": "playwright-fw",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^25.0.0",
+    "dotenv": "^17.2.3"
+  }
+}

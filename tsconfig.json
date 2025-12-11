@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",            // Fixes the import error
+    "moduleResolution": "Bundler", // Recommended for modern Playwright
+    "noEmit": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "baseUrl": "."
+  },
+  "include": ["**/*.ts", "**/*.tsx", "playwright.config.ts"],
+  "exclude": ["node_modules"]
+}
