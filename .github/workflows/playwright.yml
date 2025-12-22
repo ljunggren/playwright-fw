@@ -47,8 +47,12 @@ jobs:
   # 3. DEPLOY: A separate job that pushes the artifact to the website
   deploy-report:
     needs: test
-    # Run this even if the 'test' job failed (so we can see WHY it failed)
-    if: always()
+    # Only deploy on main branches to avoid environment protection rule errors on feature branches
+    if: |
+      always() && 
+      (github.ref == 'refs/heads/main' || 
+       github.ref == 'refs/heads/master' || 
+       github.ref == 'refs/heads/cucumber')
     
     permissions:
       pages: write
