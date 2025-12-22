@@ -15,7 +15,10 @@ test('Digital Twin Workflow Demo', async ({ page, createdUser }) => {
             name: 'Login Step',
             action: async () => {
                 await loginPage.goto();
-                await loginPage.login(createdUser.email, createdUser.password);
+                // Prioritize .env credentials as requested by user
+                const email = process.env.TEST_USERNAME || createdUser.email;
+                const password = process.env.TEST_PASSWORD || createdUser.password;
+                await loginPage.login(email, password);
             }
         },
         {
