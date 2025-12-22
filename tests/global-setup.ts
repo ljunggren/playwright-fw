@@ -1,10 +1,11 @@
 // tests/global-setup.ts
 import { chromium, FullConfig } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 async function globalSetup(config: FullConfig) {
-  // 1. Read the baseURL from your Playwright config
-  // We look at the first project's configuration to find it.
   const { baseURL, storageState } = config.projects[0].use;
 
   if (!baseURL) {
@@ -12,24 +13,29 @@ async function globalSetup(config: FullConfig) {
   }
 
   const browser = await chromium.launch();
-
-  // 2. Create a context with the baseURL explicitly set
-  // This ensures that page.goto('/login') resolves to 'http://localhost:3000/login'
   const context = await browser.newContext({ baseURL });
   const page = await context.newPage();
 
   const loginPage = new LoginPage(page);
-  
-  // Now this works because the context knows the base URL!
-  await loginPage.goto(); 
-  
-  await loginPage.login();
 
-  // 3. Save the storage state (cookies) to 'user.json'
-  // using the path defined in your config (or defaulting to 'user.json')
-  await page.context().storageState({ path: storageState as string || 'user.json' });
+  try {
+    await page.goto('/');
+    // Use the same logic as the tests
+    if (await loginPage.isLoggedIn()) {
+      console.log('Global Setup: Already logged in.');
+    } else {
+      await loginPage.goto();
+      await loginPage.login();
+    }
 
-  await browser.close();
+    // Save the storage state (cookies) to 'user.json'
+    await page.context().storageState({ path: storageState as string || 'user.json' });
+  } catch (error) {
+    console.error('Global Setup failed:', error);
+    // Don't throw here to allow tests to try logging in themselves if needed
+  } finally {
+    await browser.close();
+  }
 }
 
 export default globalSetup;

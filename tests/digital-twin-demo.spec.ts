@@ -3,6 +3,7 @@ import { LoginPage } from '../pages/LoginPage';
 import { CreateArticlePage } from '../pages/CreateArticlePage';
 import { ArticlePage } from '../pages/ArticlePage';
 import { workflow } from '../utils/WorkflowEngine';
+import { generator } from '../utils/DataGenerator';
 
 test('Digital Twin Workflow Demo', async ({ page, createdUser }) => {
     const loginPage = new LoginPage(page);
@@ -14,19 +15,21 @@ test('Digital Twin Workflow Demo', async ({ page, createdUser }) => {
         {
             name: 'Login Step',
             action: async () => {
-                await loginPage.goto();
-                // Prioritize .env credentials as requested by user
+                // Use the new loginIfNeeded logic (Boozang style)
                 const email = process.env.TEST_USERNAME || createdUser.email;
                 const password = process.env.TEST_PASSWORD || createdUser.password;
-                await loginPage.login(email, password);
+                await loginPage.loginIfNeeded(email, password);
             }
         },
         {
             name: 'Create Article Step',
             action: async () => {
+                // Generate a unique title to avoid conflicts
+                const dynamicTitle = generator.generateUnique('articleTitle', 'Playwright MBT');
+
                 await createArticlePage.goto();
                 await createArticlePage.createArticle({
-                    title: 'Model-Based Testing in Playwright',
+                    title: dynamicTitle,
                     description: 'Learning from Boozang concepts',
                     body: 'This test was generated using a Workflow Engine and Form Models.',
                     tags: 'playwright, boozang, mbt'
@@ -36,8 +39,11 @@ test('Digital Twin Workflow Demo', async ({ page, createdUser }) => {
         {
             name: 'Verification Step',
             action: async () => {
+                // Retrieve the generated title for validation
+                const expectedTitle = generator.getValue('articleTitle');
+
                 await articlePage.validateArticle(
-                    'Model-Based Testing in Playwright',
+                    expectedTitle,
                     'This test was generated'
                 );
             }
