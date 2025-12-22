@@ -22,12 +22,18 @@ export class LoginPage {
    * Check if we are already logged in by looking for authenticated-only elements.
    * This is our "Validation" node in Boozang terms.
    */
-  async isLoggedIn(): Promise<boolean> {
-    // If "New Article" or "Settings" is visible, we are logged in.
+  async isLoggedIn(username?: string): Promise<boolean> {
+    // If "New Article" is visible, we are logged in.
     const newArticleLink = this.page.getByRole('link', { name: 'New Article' });
     try {
-      // Short timeout for passive check
-      await newArticleLink.waitFor({ state: 'visible', timeout: 5000 });
+      await newArticleLink.waitFor({ state: 'visible', timeout: 3000 });
+
+      // If a specific username is provided, verify it's the one in the navbar
+      if (username) {
+        const userLink = this.page.getByRole('link', { name: username });
+        return await userLink.isVisible();
+      }
+
       return true;
     } catch {
       return false;
@@ -35,23 +41,28 @@ export class LoginPage {
   }
 
   /**
-   * Boozang-style "LoginIfNeeded": only logs in if we don't detect an active session.
+   * Boozang-style "LoginIfNeeded": only logs in if we don't detect an active session for the user.
    */
-  async loginIfNeeded(username?: string, password?: string) {
+  async loginIfNeeded(usernameOrEmail?: string, password?: string) {
     await test.step('LoginIfNeeded Validation', async () => {
-      // Go to home first to check session
+      // Go to home first to check session if needed
       if (this.page.url() === 'about:blank') {
         await this.page.goto('/');
       }
 
-      if (await this.isLoggedIn()) {
-        console.log('Boozang: Session detected. Skipping login script and reporting success.');
+      // If we have a username, we can be more specific in our check
+      // Note: usernameOrEmail might be an email, so we only use it if it doesn't look like an email
+      const isEmail = usernameOrEmail?.includes('@');
+      const checkName = isEmail ? undefined : usernameOrEmail;
+
+      if (await this.isLoggedIn(checkName)) {
+        console.log(`Boozang: Session detected${checkName ? ' for ' + checkName : ''}. Skipping login.`);
         return;
       }
 
       console.log('Boozang: No session detected. Proceeding to login.');
       await this.goto();
-      await this.login(username, password);
+      await this.login(usernameOrEmail, password);
     });
   }
 
@@ -70,6 +81,18 @@ export class LoginPage {
     await this.signInButton.click();
 
     // Wait for login to complete (New Article link is a stable indicator)
-    await this.page.getByRole('link', { name: 'New Article' }).waitFor({ timeout: 15000 });
+    await this.page.getByRole('link', { name: 'New Article' }).waitFor({ timeout: 10000 });
+  }
+
+  /**
+   * Extracts the current JWT token from localStorage.
+   * This is used to synchronize the UI session with API requests.
+   */
+  async getAuthToken(): Promise<string> {
+    const token = await this.page.evaluate(() => localStorage.getItem('jwtToken'));
+    if (!token) {
+      throw new Error('Auth Token not found in localStorage. Are you logged in?');
+    }
+    return token;
   }
 }

@@ -20,8 +20,8 @@ export class ArticlePage extends BasePage {
     this.tags = page.locator('.tag-list');
 
     // Management buttons (only visible to owner)
-    this.editButton = page.getByRole('link', { name: 'Edit Article' }).first();
-    this.deleteButton = page.getByRole('button', { name: 'Delete Article' }).first();
+    this.editButton = page.getByRole('link', { name: /Edit Article/i }).first();
+    this.deleteButton = page.getByRole('button', { name: /Delete Article/i }).first();
   }
 
   async validateArticle(expectedTitle: string, expectedBody: string) {
