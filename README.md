@@ -51,6 +51,7 @@ Remove all articles belonging to the test user to reset the environment.
 ```bash
 npm run test:cleanup
 ```
+*Note: Uses UI-based deletion due to Conduit API limitations with author queries.*
 
 ## Getting Started
 
@@ -67,6 +68,15 @@ npx playwright test tests/article-crud-mixed.spec.ts
 
 # Run the full UI-based Article CRUD
 npx playwright test tests/article-crud.spec.ts
+
+# Run with headed browser (visible)
+npx playwright test tests/article-crud.spec.ts --headed
+
+# Run in debug mode (step through with Playwright Inspector)
+npx playwright test tests/article-crud.spec.ts --debug
+
+# Run specific test by name
+npx playwright test --grep "Article CRUD"
 ```
 
 ## Continuous Integration
