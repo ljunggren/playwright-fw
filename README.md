@@ -68,15 +68,35 @@ npx playwright test tests/article-crud-mixed.spec.ts
 
 # Run the full UI-based Article CRUD
 npx playwright test tests/article-crud.spec.ts
+```
 
-# Run with headed browser (visible)
-npx playwright test tests/article-crud.spec.ts --headed
+### Useful Playwright CLI Flags
+```bash
+# Run with visible browser
+npx playwright test --headed
 
 # Run in debug mode (step through with Playwright Inspector)
-npx playwright test tests/article-crud.spec.ts --debug
+npx playwright test --debug
 
-# Run specific test by name
+# Record video on failure only (default)
+npx playwright test
+
+# Always record video
+npx playwright test --video=on
+
+# Record trace for debugging (includes screenshots, network, console)
+npx playwright test --trace=on
+
+# Run specific test by name pattern
 npx playwright test --grep "Article CRUD"
+
+# Run on specific browser
+npx playwright test --project=chromium
+npx playwright test --project=firefox
+npx playwright test --project=webkit
+
+# Run in UI mode (interactive test runner)
+npm run test:ui
 ```
 
 ## Continuous Integration
