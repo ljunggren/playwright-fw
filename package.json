@@ -7,7 +7,8 @@
     "test": "npx playwright test",
     "test:ui": "npx playwright test --ui",
     "report": "npx playwright show-report",
-    "ticket:sync": "node --loader ts-node/esm scripts/sync-tickets.ts"
+    "ticket:sync": "node --loader ts-node/esm scripts/sync-tickets.ts",
+    "test:cleanup": "npx playwright test tests/cleanup.spec.ts"
   },
   "keywords": [],
   "type": "module",

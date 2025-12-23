@@ -46,6 +46,12 @@ npm run ticket:sync
 ```
 *Note: Requires `AZURE_TOKEN`, `AZURE_ORG`, and `AZURE_PROJECT` in `.env`.*
 
+### Test Data Cleanup
+Remove all articles belonging to the test user to reset the environment.
+```bash
+npm run test:cleanup
+```
+
 ## Getting Started
 
 ### Installation
