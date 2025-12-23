@@ -6,7 +6,8 @@
   "scripts": {
     "test": "npx playwright test",
     "test:ui": "npx playwright test --ui",
-    "report": "npx playwright show-report"
+    "report": "npx playwright show-report",
+    "ticket:sync": "node --loader ts-node/esm scripts/sync-tickets.ts"
   },
   "keywords": [],
   "type": "module",
@@ -16,6 +17,8 @@
     "@faker-js/faker": "^10.1.0",
     "@playwright/test": "^1.57.0",
     "@types/node": "^25.0.0",
-    "dotenv": "^17.2.3"
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "ts-node": "^10.9.2"
   }
 }
