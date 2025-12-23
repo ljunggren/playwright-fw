@@ -8,26 +8,45 @@ This framework implements a modern, model-based testing approach inspired by **B
 We treat the application as a set of models rather than just scripts. Every form and entity is mapped once in a `FormModel` and reused across multiple test scenarios.
 
 ### 2. Workflow Engine
-Business flows are orchestrated using a `WorkflowEngine` that chains high-level logical nodes (e.g., `Login` -> `Create Article` -> `Delete`). This separates "What to test" from "How to interact".
+Business flows are orchestrated using a `WorkflowEngine` that chains high-level logical nodes. This separates "What to test" from "How to interact".
 
-### 3. LoginIfNeeded Strategy
-To optimize test execution, we use a `loginIfNeeded` strategy. It actively checks for an existing session before attempting to log in, reporting success immediately if a session is detected.
+### 3. LoginIfNeeded & Session Sync
+To optimize execution, we use a `loginIfNeeded` strategy. Furthermore, we synchronize UI and API sessions by extracting the `jwtToken` from `localStorage` after a UI login, ensuring parity across all test actions.
 
-### 4. Dynamic Data Generation
-Ensures test uniqueness across parallel runs using the `DataGenerator` utility. It handles unique hashes, pattern-based data (e.g., `USER-####`), and cross-step data persistence.
+### 4. Hybrid UI/API Workflows
+The framework supports "Mixed Mode" testing. You can use API shortcuts for fast data setup and immediately transition to UI verification or interaction within the same test context.
 
-## Project Structure
+### 5. Dynamic Data Generation
+Ensures test uniqueness across parallel runs using the `DataGenerator` utility. It handles unique hashes and pattern-based data (e.g., `USER-####`).
 
-- `pages/`: Page Object Models with integrated Form Models.
-- `utils/`: Core architecture utilities (`WorkflowEngine`, `FormModel`, `DataGenerator`).
-- `tests/`: High-level workflow tests (e.g., `article-crud.spec.ts`).
-- `docs/`: Detailed design and "how-to" documentation.
+## Directory Map
+
+| Directory | Purpose | Git Status |
+| :--- | :--- | :--- |
+| **`.agent/`** | AI agent configuration, workflows, and project context. | Tracked |
+| **`.env`** | Local secrets and config (credentials, API tokens). | **Ignored** |
+| **`.github/`** | GitHub Actions workflows and CI configurations. | Tracked |
+| **`.tr/`** | **Ticket Resources**: Local cached insights from Jira/Azure. | **Ignored** |
+| **`docs/`** | Long-form documentation and architectural decision logs. | Tracked |
+| **`fixtures/`** | Playwright fixtures for data-injection and POM instantiation. | Tracked |
+| **`pages/`** | **Digital Twins**: Page Objects containing the `FormModel` maps. | Tracked |
+| **`playwright-report/`** | HTML reports generated after a test run. | **Ignored** |
+| **`scripts/`** | Operational scripts (e.g., syncing data, cleaning envs). | Tracked |
+| **`test-results/`** | Metadata and media (videos/traces) from failed runs. | **Ignored** |
+| **`tests/`** | End-to-end specifications (UI, API, and Mixed workflows). | Tracked |
+| **`types/`** | Unified TypeScript interfaces for Payload and Response data. | Tracked |
+| **`utils/`** | Shared engines: `WorkflowEngine`, `DataGenerator`, `FormModel`. | Tracked |
+
+## Scripts & Operations
+
+### Ticket Integration
+Sync bug reports from systems like Azure DevOps into the framework for unified insights.
+```bash
+npm run ticket:sync
+```
+*Note: Requires `AZURE_TOKEN`, `AZURE_ORG`, and `AZURE_PROJECT` in `.env`.*
 
 ## Getting Started
-
-### Prerequisites
-- Node.js (LTS)
-- Playwright installed
 
 ### Installation
 ```bash
@@ -37,12 +56,15 @@ npx playwright install
 
 ### Running Tests
 ```bash
-# Run the full Article CRUD workflow
+# Run the mixed UI/API workflow
+npx playwright test tests/article-crud-mixed.spec.ts
+
+# Run the full UI-based Article CRUD
 npx playwright test tests/article-crud.spec.ts
 ```
 
 ## Continuous Integration
-GitHub Actions are configured to run the full suite on every push to `main`, `master`, and `model` branches.
+GitHub Actions are configured to run tests on `main`, `master`, and `model` branches.
 - [CI Dashboard](https://github.com/${{ github.repository }}/actions)
 
 ---
