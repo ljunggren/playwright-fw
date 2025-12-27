@@ -6,7 +6,7 @@
       "localStorage": [
         {
           "name": "jwtToken",
-          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjo0MjI0NH0sImlhdCI6MTc2NjUwMzc2MiwiZXhwIjoxNzcxNjg3NzYyfQ.aJa1u9Mjfi5RpM8ZCq8OHRbM3JhUw25p2YESqcg0FvE"
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjo0MjI0NH0sImlhdCI6MTc2Njg1MTY2NSwiZXhwIjoxNzcyMDM1NjY1fQ.eOtXKwjts5INrhkUKl634-ignoN8iaWfACw-XtDJAtU"
         }
       ]
     }
