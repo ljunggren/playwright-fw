@@ -1,6 +1,7 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { FormModel } from '../utils/FormModel';
+import { tempDB } from '../utils/TempDB';
 
 interface ArticleForm {
     title: string;
@@ -32,8 +33,28 @@ export class CreateArticlePage extends BasePage {
         await this.navigateTo('/editor');
     }
 
-    async createArticle(data: Partial<ArticleForm>) {
+    async createArticle(data: Partial<ArticleForm>, saveToDB = true) {
         await this.form.fill(data);
         await this.publishButton.click();
+
+        if (saveToDB) {
+            try {
+                // Wait for navigation to the article page to get the slug
+                // We use a shorter timeout to avoid hanging if navigation is slow or already happened
+                await this.page.waitForURL(/\/article\//, { timeout: 10000 });
+                const url = this.page.url();
+                const slug = url.split('/').pop() || '';
+
+                tempDB.saveArticle({
+                    title: data.title || '',
+                    description: data.description || '',
+                    body: data.body || '',
+                    tagList: data.tags ? data.tags.split(',').map(t => t.trim()) : [],
+                    slug: slug
+                } as any);
+            } catch (e: any) {
+                console.warn('Failed to capture slug for TempDB:', e.message);
+            }
+        }
     }
 }

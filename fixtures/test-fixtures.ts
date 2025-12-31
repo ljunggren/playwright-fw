@@ -23,9 +23,15 @@ type MyFixtures = {
   loginPage: LoginPage;
   createArticlePage: CreateArticlePage;
   articlePage: ArticlePage;
+
+  // Options
+  useTempData: boolean;
 };
 
 export const test = base.extend<MyFixtures>({
+  // Default value for option
+  useTempData: [false, { option: true }],
+
   // Initialize Generator
   generator: async ({ }, use) => {
     await use(new DataGenerator());
