@@ -4,8 +4,19 @@ class TempDB {
     private articles: ArticlePayload[] = [];
     private comments: CommentPayload[] = [];
 
-    saveArticle(article: ArticlePayload) {
+    saveArticle(article: any) {
+        if (article.slug) {
+            const index = this.articles.findIndex((a: any) => a.slug === article.slug);
+            if (index !== -1) {
+                this.articles[index] = article;
+                return;
+            }
+        }
         this.articles.push(article);
+    }
+
+    removeArticle(slug: string) {
+        this.articles = this.articles.filter((a: any) => a.slug !== slug);
     }
 
     getArticles(): ArticlePayload[] {

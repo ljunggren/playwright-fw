@@ -1,11 +1,12 @@
 import { APIRequestContext } from '@playwright/test';
 import { faker } from '@faker-js/faker';
+import { tempDB } from './TempDB';
 // Clean import thanks to the Barrel file (types/index.ts)
-import { 
-  UserPayload, UserResponse, 
-  ArticlePayload, ArticleResponse, 
-  CommentPayload, CommentResponse 
-} from '../types'; 
+import {
+  UserPayload, UserResponse,
+  ArticlePayload, ArticleResponse,
+  CommentPayload, CommentResponse
+} from '../types';
 
 export class DataFactory {
   readonly request: APIRequestContext;
@@ -24,7 +25,7 @@ export class DataFactory {
     const response = await this.request.post('https://conduit-api.bondaracademy.com/api/users', {
       data: { user: userPayload },
     });
-    
+
     const body = await response.json();
     return body.user; // Returns UserResponse (with token)
   }
@@ -43,7 +44,12 @@ export class DataFactory {
     });
 
     const body = await response.json();
-    return body.article; // Returns ArticleResponse (with slug)
+    const article = body.article;
+
+    // Save to TempDB for Digital Twin sharing
+    tempDB.saveArticle(article);
+
+    return article; // Returns ArticleResponse (with slug)
   }
 
   async createComment(token: string, slug: string): Promise<CommentResponse> {
@@ -55,8 +61,13 @@ export class DataFactory {
       headers: { Authorization: `Token ${token}` },
       data: { comment: commentPayload },
     });
-    
+
     const body = await response.json();
-    return body.comment; // Returns CommentResponse (with ID)
+    const comment = body.comment;
+
+    // Save to TempDB
+    tempDB.saveComment(comment);
+
+    return comment; // Returns CommentResponse (with ID)
   }
 }

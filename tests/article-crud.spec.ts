@@ -32,7 +32,7 @@ test('Article CRUD Workflow (Digital Twin)', async ({ page, createdUser }) => {
                     description: 'Testing full CRUD lifecycle',
                     body: 'This article will be created, edited, and deleted.',
                     tags: 'crud, mbt'
-                });
+                }, false);
             }
         },
         {

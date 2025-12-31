@@ -1,6 +1,7 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 import { CommentSection } from './components/CommentSection'; // Import the component
+import { tempDB } from '../utils/TempDB';
 
 export class ArticlePage extends BasePage {
   readonly commentSection: CommentSection; // Publicly expose the component
@@ -33,7 +34,17 @@ export class ArticlePage extends BasePage {
     await this.editButton.click();
   }
 
-  async clickDelete() {
+  async clickDelete(removeFromDB = true) {
+    let slug = '';
+    if (removeFromDB) {
+      const url = this.page.url();
+      slug = url.split('/').pop() || '';
+    }
+
     await this.deleteButton.click();
+
+    if (removeFromDB && slug) {
+      tempDB.removeArticle(slug);
+    }
   }
 }

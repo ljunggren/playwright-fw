@@ -109,6 +109,30 @@ npx playwright test --project=webkit
 npx playwright test --workers=4      # Run with 4 concurrent workers
 npx playwright test --workers=1      # Run serially (required for TempDB sharing)
 
+## Test Execution & Ordering
+
+### 1. Default Behavior
+By default, Playwright runs tests in **alphabetical order** by filename when using `--workers=1`. 
+- `01-setup.spec.ts` runs before `02-feature.spec.ts`.
+
+### 2. Manual CLI Order
+You can explicitly define the execution order by passing files in the desired sequence:
+```bash
+npx playwright test tests/article-crud.spec.ts tests/comment-crud.spec.ts --workers=1
+```
+
+### 3. Project Dependencies (Advanced)
+For complex dependencies, you can configure projects in `playwright.config.ts`:
+```typescript
+projects: [
+  { name: 'setup', testMatch: /.*setup\.spec\.ts/ },
+  { name: 'testing', testMatch: /.*crud\.spec\.ts/, dependencies: ['setup'] },
+]
+```
+
+> [!TIP]
+> **Data Lifecycle**: If you use a full CRUD test (like `article-crud.spec.ts`) as a data provider, ensure it doesn't delete the data until dependent tests (like `comment-crud.spec.ts`) have finished. Alternatively, use a dedicated "Setup" test that only performs the 'Create' action.
+
 # Run in UI mode (interactive test runner)
 npm run test:ui
 ```
