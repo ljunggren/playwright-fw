@@ -6,15 +6,16 @@ import path from 'path'; // Optional, but good for safety
 dotenv.config();
 
 export default defineConfig({
+  testDir: process.env.TEST_MODE === 'cleanup' ? './tests-cleanup' : './tests',
   // FIX: Just use the string path. 
   // Playwright resolves this relative to the config file.
-  globalSetup: './tests/global-setup.ts', 
-  reporter: [['list'], ['html']], 
+  globalSetup: './tests/global-setup.ts',
+  reporter: [['list'], ['html']],
   outputDir: 'test-results',
 
   use: {
     // Tell Playwright to load the saved cookies/state for every test
-    storageState: 'user.json', 
+    storageState: 'user.json',
     baseURL: 'https://conduit.bondaracademy.com', // Update if needed
     trace: 'on-first-retry',
     // Options: 'on' | 'off' | 'retain-on-failure' | 'on-first-retry'
