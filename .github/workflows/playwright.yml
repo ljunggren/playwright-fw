@@ -34,7 +34,7 @@ jobs:
       env:
         TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
         TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-      run: npx playwright test
+      run: npm run pipeline
 
     # 2. UPLOAD: Package the report for Pages (Runs even if tests fail)
     - name: Upload Pages Artifact

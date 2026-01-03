@@ -9,7 +9,10 @@
     "report": "npx playwright show-report",
     "ticket:sync": "node --loader ts-node/esm scripts/sync-tickets.ts",
     "test:status": "node --loader ts-node/esm scripts/test-connectivity.ts",
-    "test:cleanup": "TEST_MODE=cleanup npx playwright test"
+    "pipeline": "npx playwright test",
+    "pipeline:init": "npx playwright test --project=init",
+    "pipeline:smoke": "npx playwright test --project=smoke",
+    "pipeline:regression": "npx playwright test --project=regression"
   },
   "keywords": [],
   "type": "module",

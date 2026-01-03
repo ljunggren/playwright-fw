@@ -6,29 +6,36 @@ import path from 'path'; // Optional, but good for safety
 dotenv.config();
 
 export default defineConfig({
-  testDir: process.env.TEST_MODE === 'cleanup' ? './tests-cleanup' : './tests',
-  // FIX: Just use the string path. 
-  // Playwright resolves this relative to the config file.
   globalSetup: './tests/global-setup.ts',
   reporter: [['list'], ['html']],
   outputDir: 'test-results',
 
   use: {
-    // Tell Playwright to load the saved cookies/state for every test
     storageState: 'user.json',
-    baseURL: 'https://conduit.bondaracademy.com', // Update if needed
+    baseURL: 'https://conduit.bondaracademy.com',
     trace: 'on-first-retry',
-    // Options: 'on' | 'off' | 'retain-on-failure' | 'on-first-retry'
     video: 'retain-on-failure',
-    // Only for local debugging
-    //video: 'on',
   },
 
   projects: [
     {
-      name: 'chromium',
+      name: 'init',
+      testDir: './tests-cleanup',
+      testMatch: /.*\.spec\.ts/,
+    },
+    {
+      name: 'smoke',
+      testDir: './tests',
+      grep: /@smoke/,
+      dependencies: ['init'],
       use: { ...devices['Desktop Chrome'] },
     },
-    // ... other browsers
+    {
+      name: 'regression',
+      testDir: './tests',
+      grepInvert: /@smoke/,
+      dependencies: ['smoke'],
+      use: { ...devices['Desktop Chrome'] },
+    },
   ],
 });

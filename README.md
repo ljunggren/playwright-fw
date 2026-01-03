@@ -87,19 +87,25 @@ sequenceDiagram
 
 ## Scripts & Operations
 
+### CI/CD Pipeline
+The framework uses a structured pipeline with project dependencies:
+- **`init`**: Environment setup and cleanup.
+- **`smoke`**: Fast, critical-path tests (tagged `@smoke`).
+- **`regression`**: Full-suite tests (tagged `@regression`).
+
+```bash
+npm run pipeline            # Run the full pipeline (Init -> Smoke -> Regression)
+npm run pipeline:init       # Run only Init/Cleanup phase
+npm run pipeline:smoke      # Run Init + Smoke tests
+npm run pipeline:regression # Run the full sequence
+```
+
 ### Ticket Integration
 Sync bug reports from systems like Azure DevOps into the framework for unified insights.
 ```bash
 npm run ticket:sync
 ```
 *Note: Requires `AZURE_TOKEN`, `AZURE_ORG`, and `AZURE_PROJECT` in `.env`.*
-
-### Test Data Cleanup
-Remove all articles belonging to the test user to reset the environment. These tests are stored in `tests-cleanup/` to avoid running during the regular test suite.
-```bash
-npm run test:cleanup
-```
-*Note: Uses UI-based deletion due to Conduit API limitations with author queries.*
 
 ## Getting Started
 
@@ -110,15 +116,17 @@ npx playwright install
 ```
 
 ### Running Tests
+Most interactions should happen through the pipeline scripts:
 ```bash
-# Run the mixed UI/API workflow
-npx playwright test tests/article-crud-mixed.spec.ts
+# Run the full suite
+npm run pipeline
 
-# Run the full UI-based Article CRUD
-npx playwright test tests/article-crud.spec.ts
+# Run only smoke tests to verify core functionality
+npm run pipeline:smoke
 
-# Run cleanup tests explicitly
-npm run test:cleanup
+# Run specifically tagged tests manually
+npx playwright test --grep "@smoke"
+npx playwright test --grep "@regression"
 ```
 
 ### Useful Playwright CLI Flags
@@ -129,23 +137,6 @@ npx playwright test --headed
 # Run in debug mode (step through with Playwright Inspector)
 npx playwright test --debug
 
-# Record video on failure only (default)
-npx playwright test
-
-# Always record video
-npx playwright test --video=on
-
-# Record trace for debugging (includes screenshots, network, console)
-npx playwright test --trace=on
-
-# Run specific test by name pattern
-npx playwright test --grep "Article CRUD"
-
-# Run on specific browser
-npx playwright test --project=chromium
-npx playwright test --project=firefox
-npx playwright test --project=webkit
-
 # Control parallelism (number of workers)
 npx playwright test --workers=4      # Run with 4 concurrent workers
 npx playwright test --workers=1      # Run serially (required for TempDB sharing)
@@ -153,29 +144,20 @@ npx playwright test --workers=1      # Run serially (required for TempDB sharing
 
 ## Test Execution & Ordering
 
-### 1. Default Behavior
-By default, Playwright runs tests in **alphabetical order** by filename when using `--workers=1`. 
-- `01-setup.spec.ts` runs before `02-feature.spec.ts`.
+### 1. Project-Based Pipeline
+Execution order is managed via **Project Dependencies** in `playwright.config.ts`. This ensures `init` always runs before `smoke`, and `smoke` before `regression`.
 
-### 2. Manual CLI Order
-You can explicitly define the execution order by passing files in the desired sequence:
-```bash
-npx playwright test tests/article-crud.spec.ts tests/comment-crud.spec.ts --workers=1
-```
+### 2. Tagging Guidelines
+To ensure tests are picked up by the correct pipeline stage, always tag your tests:
+- **`@smoke`**: Critical paths, fast execution.
+- **`@regression`**: Comprehensive business flows, thorough coverage.
 
-### 3. Project Dependencies (Advanced)
-For complex dependencies, you can configure projects in `playwright.config.ts`:
+Example:
 ```typescript
-projects: [
-  { name: 'setup', testMatch: /.*setup\.spec\.ts/ },
-  { name: 'testing', testMatch: /.*crud\.spec\.ts/, dependencies: ['setup'] },
-]
+test('Article CRUD Workflow @regression', async ({ page }) => { ... });
 ```
 
-> [!TIP]
-> **Data Lifecycle**: If you use a full CRUD test (like `article-crud.spec.ts`) as a data provider, ensure it doesn't delete the data until dependent tests (like `comment-crud.spec.ts`) have finished. Alternatively, use a dedicated "Setup" test that only performs the 'Create' action.
-
-### 4. Interactive Mode
+### 3. Interactive Mode
 Run tests in UI mode (interactive test runner):
 ```bash
 npm run test:ui

@@ -14,7 +14,7 @@ test.describe('Comment CRUD', () => {
     // If false, it will always create its own article.
     test.use({ useTempData: true });
 
-    test('Comment CRUD Workflow', async ({ page, createdUser, useTempData }) => {
+    test('Comment CRUD Workflow @regression', async ({ page, createdUser, useTempData }) => {
         const loginPage = new LoginPage(page);
         const createArticlePage = new CreateArticlePage(page);
         const articlePage = new ArticlePage(page);

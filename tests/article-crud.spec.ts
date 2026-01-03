@@ -5,7 +5,7 @@ import { ArticlePage } from '../pages/ArticlePage';
 import { workflow } from '../utils/WorkflowEngine';
 import { generator } from '../utils/DataGenerator';
 
-test('Article CRUD Workflow (Digital Twin)', async ({ page, createdUser }) => {
+test('Article CRUD Workflow (Digital Twin) @regression', async ({ page, createdUser }) => {
     const loginPage = new LoginPage(page);
     const createArticlePage = new CreateArticlePage(page);
     const articlePage = new ArticlePage(page);

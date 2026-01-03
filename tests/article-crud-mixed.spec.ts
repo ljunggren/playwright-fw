@@ -1,7 +1,7 @@
 import { test, expect } from '../fixtures/test-fixtures';
 import { workflow } from '../utils/WorkflowEngine';
 
-test('Article CRUD Mixed Workflow (UI + API)', async ({
+test('Article CRUD Mixed Workflow (UI + API) @regression', async ({
     page,
     loginPage,
     createArticlePage,
