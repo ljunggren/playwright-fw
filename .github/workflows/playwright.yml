@@ -12,6 +12,10 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pipeline-init:
     name: "Pipeline Stage: Init (Cleanup)"
@@ -25,6 +29,22 @@ jobs:
         TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
         TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
       run: npx playwright test --project=init
+    
+    - name: Save Storage State
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: storage-state
+        path: user.json
+        retention-days: 1
+
+    - name: Upload Init Report
+      uses: actions/upload-pages-artifact@v3
+      if: failure()
+      with:
+        name: playwright-report-init
+        path: playwright-report/
+        retention-days: 1
 
   pipeline-smoke:
     name: "Pipeline Stage: Smoke Tests"
@@ -34,11 +54,25 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/setup-playwright
+    
+    - name: Download Storage State
+      uses: actions/download-artifact@v4
+      with:
+        name: storage-state
+
     - name: Run Smoke
       env:
         TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
         TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
       run: npx playwright test --project=smoke --no-deps
+
+    - name: Upload Smoke Report
+      uses: actions/upload-pages-artifact@v3
+      if: failure()
+      with:
+        name: playwright-report-smoke
+        path: playwright-report/
+        retention-days: 1
 
   pipeline-regression:
     name: "Pipeline Stage: Regression Tests"
@@ -48,6 +82,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/setup-playwright
+    
+    - name: Download Storage State
+      uses: actions/download-artifact@v4
+      with:
+        name: storage-state
+
     - name: Run Regression
       env:
         TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
