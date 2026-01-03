@@ -2,6 +2,20 @@
 
 This framework implements a modern, model-based testing approach inspired by **Boozang**, designed for high coverage and low maintenance.
 
+## Overview
+
+### The Why
+Modern web applications are complex and change rapidly. Traditional script-based testing is brittle and expensive to maintain. We need a framework that is resilient to UI changes and focuses on business value.
+
+### The What
+A Playwright-based framework that uses:
+- **Digital Twins**: Decoupled models of the UI.
+- **Workflow Engine**: Business-centric test orchestration.
+- **Hybrid Execution**: Unified UI and API testing.
+
+### The How
+By mapping UI components to `FormModel` instances and chaining them in logical business flows, we ensure that tests are easy to write, read, and maintain.
+
 ## Core Concepts
 
 ### 1. Digital Twin (Model-Based Testing)
@@ -24,6 +38,33 @@ The `TempDB` singleton allows tests to share data within a single run. For examp
 
 > [!WARNING]
 > **Parallel Workers Limitation**: Because `TempDB` is an in-memory singleton, it is worker-scoped. Tests that rely on sharing data through `TempDB` must run in the same worker process (using `--workers=1`). For true parallel execution across workers, consider using a persistent data store or file-based cache.
+
+## Visual Concepts
+
+### Digital Twin Architecture
+```mermaid
+graph TD
+    A[Test Specification] --> B[Page Object / Digital Twin]
+    B --> C[FormModel]
+    C --> D[DOM Element 1]
+    C --> E[DOM Element 2]
+    B --> F[Business Logic Actions]
+```
+
+### Workflow Execution
+```mermaid
+sequenceDiagram
+    participant T as Test Spec
+    participant W as WorkflowEngine
+    participant P as Page Objects (Digital Twins)
+    
+    T->>W: runBusinessFlow([steps])
+    loop for each step
+        W->>P: executeAction()
+        P->>P: validateState()
+    end
+    W->>T: complete
+```
 
 ## Directory Map
 
@@ -140,6 +181,9 @@ npm run test:ui
 ## Continuous Integration
 GitHub Actions are configured to run tests on `main`, `master`, and `model` branches.
 - [CI Dashboard](https://github.com/${{ github.repository }}/actions)
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 *Developed with a focus on scale-up release velocity.*
