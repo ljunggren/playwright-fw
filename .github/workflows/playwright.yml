@@ -13,28 +13,46 @@ permissions:
   id-token: write
 
 jobs:
-  test:
+  pipeline-init:
+    name: "Pipeline Stage: Init (Cleanup)"
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-
-    - name: Run Playwright tests
+    - uses: ./.github/actions/setup-playwright
+    - name: Run Init
       env:
         TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
         TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-      run: npm run pipeline
+      run: npx playwright test --project=init
+
+  pipeline-smoke:
+    name: "Pipeline Stage: Smoke Tests"
+    needs: pipeline-init
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/setup-playwright
+    - name: Run Smoke
+      env:
+        TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+        TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+      run: npx playwright test --project=smoke --no-deps
+
+  pipeline-regression:
+    name: "Pipeline Stage: Regression Tests"
+    needs: pipeline-smoke
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/setup-playwright
+    - name: Run Regression
+      env:
+        TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+        TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+      run: npx playwright test --project=regression --no-deps
 
     # 2. UPLOAD: Package the report for Pages (Runs even if tests fail)
     - name: Upload Pages Artifact
@@ -46,7 +64,7 @@ jobs:
 
   # 3. DEPLOY: A separate job that pushes the artifact to the website
   deploy-report:
-    needs: test
+    needs: pipeline-regression
     # Only deploy on main branches to avoid environment protection rule errors on feature branches
     if: |
       always() && 
