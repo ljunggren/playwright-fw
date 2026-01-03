@@ -149,6 +149,7 @@ npx playwright test --project=webkit
 # Control parallelism (number of workers)
 npx playwright test --workers=4      # Run with 4 concurrent workers
 npx playwright test --workers=1      # Run serially (required for TempDB sharing)
+```
 
 ## Test Execution & Ordering
 
@@ -174,7 +175,9 @@ projects: [
 > [!TIP]
 > **Data Lifecycle**: If you use a full CRUD test (like `article-crud.spec.ts`) as a data provider, ensure it doesn't delete the data until dependent tests (like `comment-crud.spec.ts`) have finished. Alternatively, use a dedicated "Setup" test that only performs the 'Create' action.
 
-# Run in UI mode (interactive test runner)
+### 4. Interactive Mode
+Run tests in UI mode (interactive test runner):
+```bash
 npm run test:ui
 ```
 
