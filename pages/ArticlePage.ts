@@ -32,6 +32,7 @@ export class ArticlePage extends BasePage {
 
   async clickEdit() {
     await this.editButton.click();
+    await this.page.waitForURL(/\/editor\//);
   }
 
   async clickDelete(removeFromDB = true) {

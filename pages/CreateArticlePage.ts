@@ -26,7 +26,7 @@ export class CreateArticlePage extends BasePage {
             tags: 'input[placeholder="Enter tags"]',
         });
 
-        this.publishButton = page.getByRole('button', { name: 'Publish Article' });
+        this.publishButton = page.getByRole('button', { name: /Publish Article|Update Article/i });
     }
 
     async goto() {
