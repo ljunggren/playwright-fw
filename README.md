@@ -164,7 +164,10 @@ npm run test:ui
 ```
 
 ## Continuous Integration
-GitHub Actions are configured to run tests on `main`, `master`, and `model` branches.
+GitHub Actions are configured with a robust, multi-stage pipeline:
+- **Sequential Jobs**: `Init` → `Smoke` → `Regression` (clearly visible as a dependency graph).
+- **State Sharing**: The `init` job persists `user.json` (storage state) to ensure subsequent jobs use the same session.
+- **Fail-Fast**: Pipeline aborts on failure to save resources and provide immediate feedback.
 - [CI Dashboard](https://github.com/${{ github.repository }}/actions)
 
 ## License
