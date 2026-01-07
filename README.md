@@ -70,7 +70,7 @@ sequenceDiagram
 
 | Directory | Purpose | Git Status |
 | :--- | :--- | :--- |
-| **`.agent/`** | AI agent configuration, workflows, and project context. | Tracked |
+| **`.agent/`** | AI agent configuration, workflows, and project context. | **Ignored** |
 | **`.env`** | Local secrets and config (credentials, API tokens). | **Ignored** |
 | **`.github/`** | GitHub Actions workflows and CI configurations. | Tracked |
 | **`.tr/`** | **Ticket Resources**: Local cached insights from Jira/Azure. | **Ignored** |
