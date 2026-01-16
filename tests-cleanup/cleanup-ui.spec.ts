@@ -1,5 +1,19 @@
 import { test, expect } from '../fixtures/test-fixtures';
 
+/**
+ * Helper function to wait for articles to finish loading.
+ * Waits until either articles appear or "No articles" message is shown.
+ */
+async function waitForArticlesToLoad(page: import('@playwright/test').Page) {
+    // Wait for the loading state to clear - either articles load or we get empty state
+    await page.waitForFunction(() => {
+        const loadingText = document.body.innerText.includes('Loading articles...');
+        const hasArticles = document.querySelectorAll('.article-preview').length > 0;
+        const noArticles = document.body.innerText.includes('No articles are here');
+        return !loadingText || hasArticles || noArticles;
+    }, { timeout: 10000 });
+}
+
 test.describe('Test Data Cleanup (UI-based)', () => {
     /**
      * This utility deletes articles by navigating through the Global Feed UI.
@@ -12,15 +26,15 @@ test.describe('Test Data Cleanup (UI-based)', () => {
         const maxAttempts = 20; // Safety limit
 
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            // Navigate to home and wait for page to load
+            // Navigate to home and wait for articles to actually load
             await page.goto('/');
-            await page.waitForTimeout(2000);
+            await waitForArticlesToLoad(page);
 
             // Ensure we're on Global Feed tab
             const globalFeedTab = page.locator('.feed-toggle .nav-link', { hasText: 'Global Feed' });
             if (!(await globalFeedTab.getAttribute('class'))?.includes('active')) {
                 await globalFeedTab.click();
-                await page.waitForTimeout(1000);
+                await waitForArticlesToLoad(page);
             }
 
             // Find all articles by "boozang"
@@ -42,7 +56,6 @@ test.describe('Test Data Cleanup (UI-based)', () => {
 
             await firstArticle.locator('h1').click();
             await page.waitForLoadState('networkidle');
-            await page.waitForTimeout(1000);
 
             // Look for delete button with multiple selectors
             const deleteButton = page.locator('button').filter({ hasText: /Delete Article/i }).first();
